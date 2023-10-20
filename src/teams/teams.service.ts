@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTeamInput } from './dto/create-team.input';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Team } from './entities/team.entity';
 import { AddUserInput } from './dto/add-user.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
@@ -17,6 +17,12 @@ export class TeamsService {
 
   async findAll(): Promise<Team[]> {
     return this.teamsRepository.find();
+  }
+
+  async findTeamsByUserId(userId: number): Promise<Team[]> {
+    return this.teamsRepository.createQueryBuilder('team')
+      .where(`:userId = ANY(team."idUsers")`, { userId })
+      .getMany();
   }
 
   async findTeamById(id: number): Promise<Team> {

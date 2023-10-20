@@ -18,6 +18,11 @@ export class TeamsResolver {
     return this.teamsService.findAll();
   }
 
+  @Query((returns) => [Team])
+  teamsByUserId(@Args('id', { type: () => Int }) id: number) {
+    return this.teamsService.findTeamsByUserId(id);
+  }
+
   @Query((returns) => Team)
   team(@Args('id', { type: () => Int }) id: number) {
     return this.teamsService.findTeamById(id);

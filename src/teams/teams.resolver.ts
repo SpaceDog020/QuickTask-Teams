@@ -5,6 +5,7 @@ import { CreateTeamInput } from './dto/create-team.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
 import { AddUserInput } from './dto/add-user.input';
 import { KickUserInput } from './dto/kick-user.input';
+import { UpdateTeamInput } from './dto/update-team.input';
 
 @Resolver(() => Team)
 export class TeamsResolver {
@@ -22,13 +23,16 @@ export class TeamsResolver {
     return this.teamsService.findTeamById(id);
   }
 
-  @Mutation((returns) => ResponseTeams)
+  @Mutation((returns) => Team)
   async createTeam(@Args('createTeamInput') createTeamInput: CreateTeamInput) {
-    const create = await this.teamsService.createTeam(createTeamInput);
-    if(create){
-        return {response: true };
-    }else{
-        return {response: false };
+    try{
+      return await this.teamsService.createTeam(createTeamInput);
+    }catch(error){
+      if(error.message === 'team already exists'){
+          throw new Error('team already exists');
+      }else{
+          throw new Error('An error occurred');
+      }
     }
   }
 
@@ -86,6 +90,26 @@ export class TeamsResolver {
           throw new Error('you cannot kick creator');
       }else if(error.message === 'user does not exist'){
           throw new Error('user does not exist');
+      }else{
+          throw new Error('An error occurred');
+      }
+    }
+  }
+
+  @Mutation((returns) => ResponseTeams)
+  async updateTeam(@Args('updateTeamInput') updateTeamInput: UpdateTeamInput){
+    try{
+      const validate = await this.teamsService.updateTeam(updateTeamInput);
+      if(validate){
+          return {response: true };
+      }else{
+          return {response: false };
+      }
+    }catch(error){
+      if(error.message === 'team does not exist'){
+          throw new Error('team does not exist');
+      }else if(error.message === 'you cannot update this team'){
+          throw new Error('you cannot update this team');
       }else{
           throw new Error('An error occurred');
       }

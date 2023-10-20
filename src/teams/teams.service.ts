@@ -6,6 +6,7 @@ import { Team } from './entities/team.entity';
 import { AddUserInput } from './dto/add-user.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
 import { KickUserInput } from './dto/kick-user.input';
+import { UpdateTeamInput } from './dto/update-team.input';
 
 @Injectable()
 export class TeamsService {
@@ -27,12 +28,22 @@ export class TeamsService {
   }
 
   async createTeam(createTeamInput: CreateTeamInput): Promise<Team> {
-    const newTeam = this.teamsRepository.create();
-    newTeam.name = createTeamInput.name;
-    newTeam.description = createTeamInput.description;
-    newTeam.idUsers = [createTeamInput.idUser];
-    newTeam.idCreator = createTeamInput.idUser;
-    return this.teamsRepository.save(newTeam);
+    const exist = await this.teamsRepository.findOne({
+      where: {
+          name: createTeamInput.name,
+          idCreator: createTeamInput.idUser
+      }
+    });
+    if(exist){
+      throw new Error('team already exists');
+    }else{
+      const newTeam = this.teamsRepository.create();
+      newTeam.name = createTeamInput.name;
+      newTeam.description = createTeamInput.description;
+      newTeam.idUsers = [createTeamInput.idUser];
+      newTeam.idCreator = createTeamInput.idUser;
+      return this.teamsRepository.save(newTeam);
+    }
   }
 
   async addUsers(addUserInput: AddUserInput): Promise<Team> {
@@ -97,6 +108,32 @@ export class TeamsService {
             await this.teamsRepository.save(team);
             return team;
         }
+      }
+    }
+  }
+
+  async updateTeam(updateTeamInput: UpdateTeamInput): Promise<boolean>{
+    const idTeam = updateTeamInput.idTeam;
+    const team = await this.teamsRepository.findOne({
+      where: {
+          id: idTeam
+      }
+    });
+
+    if(!team){
+      throw new Error('team does not exist');
+    }else{
+      if(team.idCreator !== updateTeamInput.idUser){
+        throw new Error('you cannot update this team');
+      }else{
+        if(updateTeamInput.name){
+          team.name = updateTeamInput.name;
+        }
+        if(updateTeamInput.description){
+          team.description = updateTeamInput.description;
+        }
+        await this.teamsRepository.save(team);
+        return true;
       }
     }
   }

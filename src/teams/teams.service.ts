@@ -11,9 +11,9 @@ import { UpdateTeamInput } from './dto/update-team.input';
 @Injectable()
 export class TeamsService {
   constructor(
-    @InjectRepository(Team) 
+    @InjectRepository(Team)
     private teamsRepository: Repository<Team>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Team[]> {
     return this.teamsRepository.find();
@@ -27,22 +27,22 @@ export class TeamsService {
 
   async findTeamById(id: number): Promise<Team> {
     return this.teamsRepository.findOne({
-        where: {
-            id
-        }
+      where: {
+        id
+      }
     });
   }
 
   async createTeam(createTeamInput: CreateTeamInput): Promise<Team> {
     const exist = await this.teamsRepository.findOne({
       where: {
-          name: createTeamInput.name,
-          idCreator: createTeamInput.idUser
+        name: createTeamInput.name,
+        idCreator: createTeamInput.idUser
       }
     });
-    if(exist){
+    if (exist) {
       throw new Error('team already exists');
-    }else{
+    } else {
       const newTeam = this.teamsRepository.create();
       newTeam.name = createTeamInput.name;
       newTeam.description = createTeamInput.description;
@@ -57,35 +57,35 @@ export class TeamsService {
     const idUser = addUserInput.idUser;
     const team = await this.teamsRepository.findOne({
       where: {
-          id: idTeam
+        id: idTeam
       }
     });
 
-    if(!team){
+    if (!team) {
       throw new Error('team does not exist');
-    }else{
+    } else {
       const exist = await team.idUsers.find(id => id === idUser);
-      if(exist){
-          throw new Error('user already exists');
-      }else{
-          team.idUsers.push(idUser);
-          await this.teamsRepository.save(team);
-          return team;
+      if (exist) {
+        throw new Error('user already exists');
+      } else {
+        team.idUsers.push(idUser);
+        await this.teamsRepository.save(team);
+        return team;
       }
     }
   }
 
-  async deleteTeam(deleteTeamInput: DeleteTeamInput): Promise<boolean>{
+  async deleteTeam(deleteTeamInput: DeleteTeamInput): Promise<boolean> {
     const idTeam = deleteTeamInput.idTeam;
     const team = await this.teamsRepository.findOne({
       where: {
-          id: idTeam
+        id: idTeam
       }
     });
 
-    if(!team){
+    if (!team) {
       throw new Error('team does not exist');
-    }else{
+    } else {
       await this.teamsRepository.delete(idTeam);
       return true;
     }
@@ -96,46 +96,46 @@ export class TeamsService {
     const idUser = kickUserInput.idUser;
     const team = await this.teamsRepository.findOne({
       where: {
-          id: idTeam
+        id: idTeam
       }
     });
 
-    if(!team){
+    if (!team) {
       throw new Error('team does not exist');
-    }else{
-      if(team.idCreator === idUser){
+    } else {
+      if (team.idCreator === idUser) {
         throw new Error('you cannot kick creator');
-      }else{
+      } else {
         const exist = await team.idUsers.find(id => id === idUser);
-        if(!exist){
-            throw new Error('user does not exist');
-        }else{
-            team.idUsers = team.idUsers.filter(id => id !== idUser);
-            await this.teamsRepository.save(team);
-            return team;
+        if (!exist) {
+          throw new Error('user does not exist');
+        } else {
+          team.idUsers = team.idUsers.filter(id => id !== idUser);
+          await this.teamsRepository.save(team);
+          return team;
         }
       }
     }
   }
 
-  async updateTeam(updateTeamInput: UpdateTeamInput): Promise<boolean>{
+  async updateTeam(updateTeamInput: UpdateTeamInput): Promise<boolean> {
     const idTeam = updateTeamInput.idTeam;
     const team = await this.teamsRepository.findOne({
       where: {
-          id: idTeam
+        id: idTeam
       }
     });
 
-    if(!team){
+    if (!team) {
       throw new Error('team does not exist');
-    }else{
-      if(team.idCreator !== updateTeamInput.idUser){
+    } else {
+      if (team.idCreator !== updateTeamInput.idUser) {
         throw new Error('you cannot update this team');
-      }else{
-        if(updateTeamInput.name){
+      } else {
+        if (updateTeamInput.name) {
           team.name = updateTeamInput.name;
         }
-        if(updateTeamInput.description){
+        if (updateTeamInput.description) {
           team.description = updateTeamInput.description;
         }
         await this.teamsRepository.save(team);
@@ -143,4 +143,19 @@ export class TeamsService {
       }
     }
   }
+
+  async findUsersByTeamId(idTeam: number): Promise<number[]> {
+    const team = await this.teamsRepository.findOne({
+      where: {
+        id: idTeam
+      }
+    });
+
+    if (!team) {
+      throw new Error('Team not found');
+    }
+
+    return team.idUsers;
+  }
+
 }

@@ -31,3 +31,9 @@ export class ResponseTeams {
   @Field()
   response: boolean;
 }
+
+@ObjectType()
+export class TeamUsersResponse {
+  @Field(() => [Int])
+  userIds: number[];
+}

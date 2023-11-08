@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { TeamsService } from './teams.service';
-import { ResponseTeams, Team } from './entities/team.entity';
+import { ResponseTeams, Team, TeamUsersResponse } from './entities/team.entity';
 import { CreateTeamInput } from './dto/create-team.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
 import { AddUserInput } from './dto/add-user.input';
@@ -15,21 +15,32 @@ export class TeamsResolver {
 
   @Query((returns) => [Team])
   teams() {
+    console.log('[*] teams');
     return this.teamsService.findAll();
   }
 
   @Query((returns) => [Team])
   teamsByUserId(@Args('id', { type: () => Int }) id: number) {
+    console.log('[*] teamsByUserId');
     return this.teamsService.findTeamsByUserId(id);
   }
 
   @Query((returns) => Team)
   team(@Args('id', { type: () => Int }) id: number) {
+    console.log('[*] team');
     return this.teamsService.findTeamById(id);
+  }
+
+  @Query((returns) => TeamUsersResponse)
+  async teamUserIds(@Args('id', { type: () => Int }) id: number) {
+    console.log('[*] teamUserIds');
+    const userIds = await this.teamsService.findUsersByTeamId(id);
+    return { userIds };
   }
 
   @Mutation((returns) => Team)
   async createTeam(@Args('createTeamInput') createTeamInput: CreateTeamInput) {
+    console.log('[*] createTeam');
     try{
       return await this.teamsService.createTeam(createTeamInput);
     }catch(error){
@@ -43,6 +54,7 @@ export class TeamsResolver {
 
   @Mutation((returns) => ResponseTeams)
   async addUsers(@Args('addUsersInput') addUsersInput: AddUserInput){
+    console.log('[*] addUsers');
     try{
       const validate = await this.teamsService.addUsers(addUsersInput);
       if(validate){
@@ -63,6 +75,7 @@ export class TeamsResolver {
 
   @Mutation((returns) => ResponseTeams)
   async deleteTeam(@Args('deleteTeamInput') deleteTeamInput: DeleteTeamInput){
+    console.log('[*] deleteTeam');
     try{
       const validate = await this.teamsService.deleteTeam(deleteTeamInput);
       if(validate){
@@ -81,6 +94,7 @@ export class TeamsResolver {
 
   @Mutation((returns) => ResponseTeams)
   async kickUser(@Args('kickUserInput') kickUserInput: KickUserInput){
+    console.log('[*] kickUser');
     try{
       const validate = await this.teamsService.kickUser(kickUserInput);
       if(validate){
@@ -103,6 +117,7 @@ export class TeamsResolver {
 
   @Mutation((returns) => ResponseTeams)
   async updateTeam(@Args('updateTeamInput') updateTeamInput: UpdateTeamInput){
+    console.log('[*] updateTeam');
     try{
       const validate = await this.teamsService.updateTeam(updateTeamInput);
       if(validate){
@@ -120,4 +135,6 @@ export class TeamsResolver {
       }
     }
   }
+
+  
 }

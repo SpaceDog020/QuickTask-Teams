@@ -1,8 +1,8 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
-@Index(["name", "idCreator"], { unique: true })
+@Unique(["name", "idCreator"])
 @ObjectType()
 export class Team {
   @PrimaryGeneratedColumn()
@@ -24,6 +24,10 @@ export class Team {
   @Column()
   @Field((type) => Int)
   idCreator: number;
+
+  @Column('integer', { array: true })
+  @Field((type) => [Int])
+  idRoles: number[];
 }
 
 @ObjectType()

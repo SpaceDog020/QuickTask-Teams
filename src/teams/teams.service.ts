@@ -48,6 +48,7 @@ export class TeamsService {
       newTeam.description = createTeamInput.description;
       newTeam.idUsers = [createTeamInput.idUser];
       newTeam.idCreator = createTeamInput.idUser;
+      newTeam.idRoles = [];
       return this.teamsRepository.save(newTeam);
     }
   }

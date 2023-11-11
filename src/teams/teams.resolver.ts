@@ -44,11 +44,7 @@ export class TeamsResolver {
     try{
       return await this.teamsService.createTeam(createTeamInput);
     }catch(error){
-      if(error.message === 'team already exists'){
-          throw new Error('team already exists');
-      }else{
-          throw new Error('An error occurred');
-      }
+      throw new Error(error.message);
     }
   }
 
@@ -63,13 +59,7 @@ export class TeamsResolver {
           return {response: false };
       }
     }catch(error){
-        if(error.message === 'team does not exist'){
-            throw new Error('team does not exist');
-        }else if(error.message === 'user already exists'){
-            throw new Error('user already exists');
-        }else{
-            throw new Error('An error occurred');
-        }
+      throw new Error(error.message);
     }
   }
 
@@ -84,11 +74,7 @@ export class TeamsResolver {
           return {response: false };
       }
     }catch(error){
-      if(error.message === 'team does not exist'){
-          throw new Error('team does not exist');
-      }else{
-          throw new Error('An error occurred');
-      }
+      throw new Error(error.message);
     }
   }
 
@@ -103,15 +89,7 @@ export class TeamsResolver {
           return {response: false };
       }
     }catch(error){
-      if(error.message === 'team does not exist'){
-          throw new Error('team does not exist');
-      }else if(error.message === 'you cannot kick creator'){
-          throw new Error('you cannot kick creator');
-      }else if(error.message === 'user does not exist'){
-          throw new Error('user does not exist');
-      }else{
-          throw new Error('An error occurred');
-      }
+      throw new Error(error.message);
     }
   }
 
@@ -126,15 +104,7 @@ export class TeamsResolver {
           return {response: false };
       }
     }catch(error){
-      if(error.message === 'team does not exist'){
-          throw new Error('team does not exist');
-      }else if(error.message === 'you cannot update this team'){
-          throw new Error('you cannot update this team');
-      }else{
-          throw new Error('An error occurred');
-      }
+      throw new Error(error.message);
     }
   }
-
-  
 }

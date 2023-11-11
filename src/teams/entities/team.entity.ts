@@ -24,10 +24,6 @@ export class Team {
   @Column()
   @Field((type) => Int)
   idCreator: number;
-
-  @Column('integer', { array: true })
-  @Field((type) => [Int])
-  idRoles: number[];
 }
 
 @ObjectType()

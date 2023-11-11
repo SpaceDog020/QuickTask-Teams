@@ -3,11 +3,10 @@ import { TeamsService } from './teams.service';
 import { TeamsResolver } from './teams.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Team } from './entities/team.entity';
-import { TeamRoleUser } from './entities/team-role-user.entity';
-import { Role } from 'src/roles/entities/role.entity';
+
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Team, Role, TeamRoleUser])],
+  imports: [TypeOrmModule.forFeature([Team])],
   providers: [TeamsResolver, TeamsService],
   exports: [TeamsService]
 })

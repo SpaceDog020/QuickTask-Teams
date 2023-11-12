@@ -5,7 +5,7 @@ import { CreateTeamInput } from './dto/create-team.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
 import { AddUserInput } from './dto/add-user.input';
 import { KickUserInput } from './dto/kick-user.input';
-import { UpdateTeamInput } from './dto/update-team.input';
+import { ChangeCreatorInput, UpdateTeamInput } from './dto/update-team.input';
 
 @Resolver(() => Team)
 export class TeamsResolver {
@@ -23,6 +23,22 @@ export class TeamsResolver {
   teamsByUserId(@Args('id', { type: () => Int }) id: number) {
     console.log('[*] teamsByUserId');
     return this.teamsService.findTeamsByUserId(id);
+  }
+
+  @Query((returns) => ResponseTeams)
+  async findTeamsByCreatorId(@Args('id', { type: () => Int }) id: number) {
+    console.log('[*] findTeamsByCreatorId');
+    try{
+      const validate = await this.teamsService.findTeamsByCreatorId(id);
+      console.log(validate)
+      if(validate){
+          return {response: true };
+      }else{
+          return {response: false };
+      }
+    }catch(error){
+      throw new Error(error.message);
+    }
   }
 
   @Query((returns) => Team)
@@ -98,6 +114,21 @@ export class TeamsResolver {
     console.log('[*] updateTeam');
     try{
       const validate = await this.teamsService.updateTeam(updateTeamInput);
+      if(validate){
+          return {response: true };
+      }else{
+          return {response: false };
+      }
+    }catch(error){
+      throw new Error(error.message);
+    }
+  }
+
+  @Mutation((returns) => ResponseTeams)
+  async changeCreator(@Args('changeCreatorInput') changeCreatorInput: ChangeCreatorInput){
+    console.log('[*] changeCreator');
+    try{
+      const validate = await this.teamsService.changeCreator(changeCreatorInput);
       if(validate){
           return {response: true };
       }else{

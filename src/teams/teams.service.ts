@@ -6,7 +6,7 @@ import { Team } from './entities/team.entity';
 import { AddUserInput } from './dto/add-user.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
 import { KickUserInput } from './dto/kick-user.input';
-import { UpdateTeamInput } from './dto/update-team.input';
+import { UpdateTeamInput, ChangeCreatorInput } from './dto/update-team.input';
 
 @Injectable()
 export class TeamsService {
@@ -21,8 +21,23 @@ export class TeamsService {
 
   async findTeamsByUserId(userId: number): Promise<Team[]> {
     return this.teamsRepository.createQueryBuilder('team')
-      .where(`:userId = ANY(team."idUsers")`, { userId })
-      .getMany();
+    .where(`:userId = ANY(team."idUsers")`, { userId })
+    .getMany();
+  }
+
+  async findTeamsByCreatorId(userId: number): Promise<Boolean> {
+    const teams = await this.teamsRepository.find({
+      where: {
+        idCreator: userId
+      }
+    });
+    console.log(userId)
+    console.log(teams.length)
+    if (teams.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async findTeamById(id: number): Promise<Team> {
@@ -140,6 +155,35 @@ export class TeamsService {
         }
         await this.teamsRepository.save(team);
         return true;
+      }
+    }
+  }
+
+  async changeCreator(changeCreatorInput: ChangeCreatorInput): Promise<boolean> {
+    const idTeam = changeCreatorInput.idTeam;
+    const idUser = changeCreatorInput.idUser;
+    const idNewCreator = changeCreatorInput.idNewCreator;
+    const team = await this.teamsRepository.findOne({
+      where: {
+        id: idTeam
+      }
+    });
+
+    if (!team) {
+      throw new Error('team does not exist');
+    } else {
+      if (team.idCreator !== idUser) {
+        throw new Error('you cannot change creator');
+      } else {
+        const exist = await team.idUsers.find(id => id === idNewCreator);
+        if (!exist) {
+          throw new Error('new creator does not exist');
+        } else {
+          team.idCreator = idNewCreator;
+          team.idUsers = team.idUsers.filter(id => id !== idUser);
+          await this.teamsRepository.save(team);
+          return true;
+        }
       }
     }
   }

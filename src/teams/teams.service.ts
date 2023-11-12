@@ -56,7 +56,7 @@ export class TeamsService {
       }
     });
     if (exist) {
-      throw new Error('team already exists');
+      throw new Error('El equipo ya existe');
     } else {
       const newTeam = this.teamsRepository.create();
       newTeam.name = createTeamInput.name;
@@ -77,11 +77,11 @@ export class TeamsService {
     });
 
     if (!team) {
-      throw new Error('team does not exist');
+      throw new Error('El equipo no existe');
     } else {
       const exist = await team.idUsers.find(id => id === idUser);
       if (exist) {
-        throw new Error('user already exists');
+        throw new Error('El usuario ya existe en el equipo');
       } else {
         team.idUsers.push(idUser);
         await this.teamsRepository.save(team);
@@ -99,7 +99,7 @@ export class TeamsService {
     });
 
     if (!team) {
-      throw new Error('team does not exist');
+      throw new Error('El equipo no existe');
     } else {
       await this.teamsRepository.delete(idTeam);
       return true;
@@ -116,14 +116,14 @@ export class TeamsService {
     });
 
     if (!team) {
-      throw new Error('team does not exist');
+      throw new Error('El equipo no existe');
     } else {
       if (team.idCreator === idUser) {
-        throw new Error('you cannot kick creator');
+        throw new Error('No puedes expulsarte a ti mismo');
       } else {
         const exist = await team.idUsers.find(id => id === idUser);
         if (!exist) {
-          throw new Error('user does not exist');
+          throw new Error('El usuario no existe en el equipo');
         } else {
           team.idUsers = team.idUsers.filter(id => id !== idUser);
           await this.teamsRepository.save(team);
@@ -142,10 +142,10 @@ export class TeamsService {
     });
 
     if (!team) {
-      throw new Error('team does not exist');
+      throw new Error('El equipo no existe');
     } else {
       if (team.idCreator !== updateTeamInput.idUser) {
-        throw new Error('you cannot update this team');
+        throw new Error('No puedes modificar el equipo');
       } else {
         if (updateTeamInput.name) {
           team.name = updateTeamInput.name;
@@ -170,14 +170,14 @@ export class TeamsService {
     });
 
     if (!team) {
-      throw new Error('team does not exist');
+      throw new Error('El equipo no existe');
     } else {
       if (team.idCreator !== idUser) {
-        throw new Error('you cannot change creator');
+        throw new Error('No puedes modificar el equipo');
       } else {
         const exist = await team.idUsers.find(id => id === idNewCreator);
         if (!exist) {
-          throw new Error('new creator does not exist');
+          throw new Error('El usuario no existe en el equipo');
         } else {
           team.idCreator = idNewCreator;
           team.idUsers = team.idUsers.filter(id => id !== idUser);
@@ -196,7 +196,7 @@ export class TeamsService {
     });
 
     if (!team) {
-      throw new Error('Team not found');
+      throw new Error('El equipo no existe');
     }
 
     return team.idUsers;

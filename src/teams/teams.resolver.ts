@@ -30,7 +30,6 @@ export class TeamsResolver {
     console.log('[*] findTeamsByCreatorId');
     try{
       const validate = await this.teamsService.findTeamsByCreatorId(id);
-      console.log(validate)
       if(validate){
           return {response: true };
       }else{

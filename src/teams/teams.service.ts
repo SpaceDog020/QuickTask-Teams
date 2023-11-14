@@ -31,8 +31,6 @@ export class TeamsService {
         idCreator: userId
       }
     });
-    console.log(userId)
-    console.log(teams.length)
     if (teams.length > 0) {
       return true;
     } else {
@@ -46,6 +44,19 @@ export class TeamsService {
         id
       }
     });
+  }
+
+  async findTeamsByIds(ids: number[]): Promise<Team[]> {
+    const teams = this.teamsRepository.find({
+      where: {
+        id: In(ids)
+      }
+    });
+    if(teams) {
+      return teams;
+    } else {
+      throw new Error('No se han encontrado equipos');
+    }
   }
 
   async createTeam(createTeamInput: CreateTeamInput): Promise<Team> {
@@ -92,6 +103,7 @@ export class TeamsService {
 
   async deleteTeam(deleteTeamInput: DeleteTeamInput): Promise<boolean> {
     const idTeam = deleteTeamInput.idTeam;
+    const idCreator = deleteTeamInput.idCreator;
     const team = await this.teamsRepository.findOne({
       where: {
         id: idTeam
@@ -101,8 +113,12 @@ export class TeamsService {
     if (!team) {
       throw new Error('El equipo no existe');
     } else {
-      await this.teamsRepository.delete(idTeam);
-      return true;
+      if(team.idCreator !== idCreator) {
+        throw new Error('No puedes eliminar el equipo');
+      }else{
+        await this.teamsRepository.delete(idTeam);
+        return true;
+      }
     }
   }
 
@@ -163,6 +179,7 @@ export class TeamsService {
     const idTeam = changeCreatorInput.idTeam;
     const idUser = changeCreatorInput.idUser;
     const idNewCreator = changeCreatorInput.idNewCreator;
+    console.log("idTeam", idTeam, "idUser", idUser, "idNewCreator", idNewCreator);
     const team = await this.teamsRepository.findOne({
       where: {
         id: idTeam
@@ -180,7 +197,6 @@ export class TeamsService {
           throw new Error('El usuario no existe en el equipo');
         } else {
           team.idCreator = idNewCreator;
-          team.idUsers = team.idUsers.filter(id => id !== idUser);
           await this.teamsRepository.save(team);
           return true;
         }

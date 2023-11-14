@@ -53,6 +53,12 @@ export class TeamsResolver {
     return { userIds };
   }
 
+  @Query((returns) => [Team])
+  teamsByIds(@Args('ids', { type: () => [Int] }) ids: number[]) {
+    console.log('[*] teamsByIds');
+    return this.teamsService.findTeamsByIds(ids);
+  }
+
   @Mutation((returns) => Team)
   async createTeam(@Args('createTeamInput') createTeamInput: CreateTeamInput) {
     console.log('[*] createTeam');

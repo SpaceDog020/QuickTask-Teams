@@ -73,13 +73,13 @@ export class TeamsResolver {
   @Mutation((returns) => ResponseTeams)
   async addUsers(@Args('addUsersInput') addUsersInput: AddUserInput) {
     console.log('[*] addUsers');
-    
+
     interface UserResponse {
       email: {
         id: number;
       };
     }
-    
+
     try {
       const userQuery = `
         query {
@@ -90,7 +90,7 @@ export class TeamsResolver {
       `;
 
       const user: UserResponse = await request('http://localhost:3001/graphql', userQuery);
-    
+
       if (!user) {
         return { response: false };
       }
@@ -110,7 +110,33 @@ export class TeamsResolver {
   @Mutation((returns) => ResponseTeams)
   async deleteTeam(@Args('deleteTeamInput') deleteTeamInput: DeleteTeamInput) {
     console.log('[*] deleteTeam');
+
+    interface ProjectResponse {
+      removeTeamAllProject: {
+        response: boolean;
+      };
+    }
+
     try {
+      const team = await this.teamsService.findTeamById(deleteTeamInput.idTeam);
+
+      const projectMutation = `
+        mutation{
+          removeTeamAllProject(removeTeamAllProjectInput:{
+            idTeam: ${deleteTeamInput.idTeam},
+            idUsers: ${team.idUsers}
+          }){
+            response
+          }
+        }
+      `;
+
+      const validateProject: ProjectResponse = await request('http://localhost:3003/graphql', projectMutation);
+
+      if (!validateProject.removeTeamAllProject.response) {
+        return { response: false };
+      }
+
       const validate = await this.teamsService.deleteTeam(deleteTeamInput);
       if (validate) {
         return { response: true };

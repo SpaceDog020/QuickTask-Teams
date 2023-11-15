@@ -78,9 +78,8 @@ export class TeamsService {
     }
   }
 
-  async addUsers(addUserInput: AddUserInput): Promise<Team> {
+  async addUsers(addUserInput: AddUserInput, idUser: number): Promise<Team> {
     const idTeam = addUserInput.idTeam;
-    const idUser = addUserInput.idUser;
     const team = await this.teamsRepository.findOne({
       where: {
         id: idTeam

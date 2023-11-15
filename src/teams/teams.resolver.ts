@@ -1,4 +1,5 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { request } from 'graphql-request';
 import { TeamsService } from './teams.service';
 import { ResponseTeams, Team, TeamUsersResponse } from './entities/team.entity';
 import { CreateTeamInput } from './dto/create-team.input';
@@ -11,7 +12,7 @@ import { ChangeCreatorInput, UpdateTeamInput } from './dto/update-team.input';
 export class TeamsResolver {
   constructor(
     private readonly teamsService: TeamsService
-  ) {}
+  ) { }
 
   @Query((returns) => [Team])
   teams() {
@@ -28,14 +29,14 @@ export class TeamsResolver {
   @Query((returns) => ResponseTeams)
   async findTeamsByCreatorId(@Args('id', { type: () => Int }) id: number) {
     console.log('[*] findTeamsByCreatorId');
-    try{
+    try {
       const validate = await this.teamsService.findTeamsByCreatorId(id);
-      if(validate){
-          return {response: true };
-      }else{
-          return {response: false };
+      if (validate) {
+        return { response: true };
+      } else {
+        return { response: false };
       }
-    }catch(error){
+    } catch (error) {
       throw new Error(error.message);
     }
   }
@@ -62,84 +63,106 @@ export class TeamsResolver {
   @Mutation((returns) => Team)
   async createTeam(@Args('createTeamInput') createTeamInput: CreateTeamInput) {
     console.log('[*] createTeam');
-    try{
+    try {
       return await this.teamsService.createTeam(createTeamInput);
-    }catch(error){
+    } catch (error) {
       throw new Error(error.message);
     }
   }
 
   @Mutation((returns) => ResponseTeams)
-  async addUsers(@Args('addUsersInput') addUsersInput: AddUserInput){
+  async addUsers(@Args('addUsersInput') addUsersInput: AddUserInput) {
     console.log('[*] addUsers');
-    try{
-      const validate = await this.teamsService.addUsers(addUsersInput);
-      if(validate){
-          return {response: true };
-      }else{
-          return {response: false };
+    
+    interface UserResponse {
+      email: {
+        id: number;
+      };
+    }
+    
+    try {
+      const userQuery = `
+        query {
+          email(email: "${addUsersInput.email}") {
+            id
+          }
+        }
+      `;
+
+      const user: UserResponse = await request('http://localhost:3001/graphql', userQuery);
+    
+      if (!user) {
+        return { response: false };
       }
-    }catch(error){
+
+      const validate = await this.teamsService.addUsers(addUsersInput, user.email.id);
+      if (validate) {
+        return { response: true };
+      } else {
+        return { response: false };
+      }
+
+    } catch (error) {
       throw new Error(error.message);
     }
   }
 
   @Mutation((returns) => ResponseTeams)
-  async deleteTeam(@Args('deleteTeamInput') deleteTeamInput: DeleteTeamInput){
+  async deleteTeam(@Args('deleteTeamInput') deleteTeamInput: DeleteTeamInput) {
     console.log('[*] deleteTeam');
-    try{
+    try {
       const validate = await this.teamsService.deleteTeam(deleteTeamInput);
-      if(validate){
-          return {response: true };
-      }else{
-          return {response: false };
+      if (validate) {
+        return { response: true };
+      } else {
+        return { response: false };
       }
-    }catch(error){
+    } catch (error) {
       throw new Error(error.message);
     }
   }
 
   @Mutation((returns) => ResponseTeams)
-  async kickUser(@Args('kickUserInput') kickUserInput: KickUserInput){
+  async kickUser(@Args('kickUserInput') kickUserInput: KickUserInput) {
     console.log('[*] kickUser');
-    try{
+    try {
       const validate = await this.teamsService.kickUser(kickUserInput);
-      if(validate){
-          return {response: true };
-      }else{
-          return {response: false };
+      if (validate) {
+        return { response: true };
+      } else {
+        return { response: false };
       }
-    }catch(error){
+    } catch (error) {
       throw new Error(error.message);
     }
   }
 
   @Mutation((returns) => ResponseTeams)
-  async updateTeam(@Args('updateTeamInput') updateTeamInput: UpdateTeamInput){
+  async updateTeam(@Args('updateTeamInput') updateTeamInput: UpdateTeamInput) {
     console.log('[*] updateTeam');
-    try{
+    try {
       const validate = await this.teamsService.updateTeam(updateTeamInput);
-      if(validate){
-          return {response: true };
-      }else{
-          return {response: false };
+      if (validate) {
+        return { response: true };
+      } else {
+        return { response: false };
       }
-    }catch(error){
+    } catch (error) {
       throw new Error(error.message);
     }
   }
 
   @Mutation((returns) => ResponseTeams)
-  async changeCreator(@Args('changeCreatorInput') changeCreatorInput: ChangeCreatorInput){
+  async changeCreator(@Args('changeCreatorInput') changeCreatorInput: ChangeCreatorInput) {
     console.log('[*] changeCreator');
-    try{
+    try {
       const validate = await this.teamsService.changeCreator(changeCreatorInput);
-      if(validate){
-          return {response: true };
-      }else{
-          return {response: false };
+      if (validate) {
+        return { response: true };
+      } else {
+        return { response: false };
       }
-    }catch(error){
+    } catch (error) {
       throw new Error(error.message);
     }
   }

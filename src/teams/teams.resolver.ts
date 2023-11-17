@@ -5,7 +5,7 @@ import { ResponseTeams, Team, TeamUsersResponse } from './entities/team.entity';
 import { CreateTeamInput } from './dto/create-team.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
 import { AddUserInput } from './dto/add-user.input';
-import { KickUserInput } from './dto/kick-user.input';
+import { KickUserAllTeamsInput, KickUserInput } from './dto/kick-user.input';
 import { ChangeCreatorInput, UpdateTeamInput } from './dto/update-team.input';
 
 @Resolver(() => Team)
@@ -37,7 +37,11 @@ export class TeamsResolver {
         return { response: false };
       }
     } catch (error) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
     }
   }
 
@@ -66,7 +70,11 @@ export class TeamsResolver {
     try {
       return await this.teamsService.createTeam(createTeamInput);
     } catch (error) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
     }
   }
 
@@ -94,7 +102,6 @@ export class TeamsResolver {
       if (!user) {
         return { response: false };
       }
-
       const validate = await this.teamsService.addUsers(addUsersInput, user.email.id);
       if (validate) {
         return { response: true };
@@ -103,7 +110,11 @@ export class TeamsResolver {
       }
 
     } catch (error) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
     }
   }
 
@@ -121,17 +132,22 @@ export class TeamsResolver {
       const team = await this.teamsService.findTeamById(deleteTeamInput.idTeam);
 
       const projectMutation = `
-        mutation{
+        mutation ($idTeam: Int!, $idUsers: [Int!]!) {
           removeTeamAllProject(removeTeamAllProjectInput:{
-            idTeam: ${deleteTeamInput.idTeam},
-            idUsers: ${team.idUsers}
-          }){
+            idTeam: $idTeam,
+            idUsers: $idUsers
+          }) {
             response
           }
         }
       `;
 
-      const validateProject: ProjectResponse = await request('http://localhost:3003/graphql', projectMutation);
+      const variables = {
+        idTeam: deleteTeamInput.idTeam,
+        idUsers: team.idUsers
+      };
+
+      const validateProject: ProjectResponse = await request('http://localhost:3003/graphql', projectMutation, variables);
 
       if (!validateProject.removeTeamAllProject.response) {
         return { response: false };
@@ -144,14 +160,92 @@ export class TeamsResolver {
         return { response: false };
       }
     } catch (error) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
+    }
+  }
+
+  @Mutation((returns) => ResponseTeams)
+  async kickUserAllTeams(@Args('kickUserAllTeamsInput') kickUserAllTeamsInput: KickUserAllTeamsInput) {
+    console.log('[*] kickUserAllTeams');
+
+    interface RoleResponse {
+      deleteRoleUserByUser: {
+        response: boolean;
+      };
+    }
+
+    try {
+      const roleMutation = `
+        mutation ($idUser: Int!) {
+          deleteRoleUserByUser(deleteRoleUserByUserInput:{
+            idUser: $idUser
+          }) {
+            response
+          }
+        }
+      `;
+
+      const variables = {
+        idUser: kickUserAllTeamsInput.idUser
+      };
+
+      const validate = await this.teamsService.kickUserAllTeams(kickUserAllTeamsInput);
+      if (validate) {
+        const validateRole: RoleResponse = await request('http://localhost:3003/graphql', roleMutation, variables);
+
+        if (!validateRole.deleteRoleUserByUser.response) {
+          return { response: false };
+        } else {
+          return { response: true };
+        }
+      } else {
+        return { response: false };
+      }
+
+    } catch (error) {
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
     }
   }
 
   @Mutation((returns) => ResponseTeams)
   async kickUser(@Args('kickUserInput') kickUserInput: KickUserInput) {
     console.log('[*] kickUser');
+
+    interface RoleResponse {
+      deleteRoleUserByUser: {
+        response: boolean;
+      };
+    }
+
     try {
+      const roleMutation = `
+        mutation ($idUser: Int!) {
+          deleteRoleUserByUser(deleteRoleUserByUserInput:{
+            idUser: $idUser
+          }) {
+            response
+          }
+        }
+      `;
+
+      const variables = {
+        idUser: kickUserInput.idUser
+      };
+
+      const validateRole: RoleResponse = await request('http://localhost:3002/graphql', roleMutation, variables);
+
+      if (!validateRole.deleteRoleUserByUser.response) {
+        return { response: false };
+      }
+
       const validate = await this.teamsService.kickUser(kickUserInput);
       if (validate) {
         return { response: true };
@@ -159,7 +253,11 @@ export class TeamsResolver {
         return { response: false };
       }
     } catch (error) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
     }
   }
 
@@ -174,7 +272,11 @@ export class TeamsResolver {
         return { response: false };
       }
     } catch (error) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
     }
   }
 
@@ -189,7 +291,11 @@ export class TeamsResolver {
         return { response: false };
       }
     } catch (error) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.errors[0]?.message || 'Error desconocido';
+      if (errorMessage === 'Error desconocido') {
+        throw new Error(error.message);
+      }
+      throw new Error(errorMessage);
     }
   }
 }

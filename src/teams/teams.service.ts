@@ -5,7 +5,7 @@ import { In, Repository } from 'typeorm';
 import { Team } from './entities/team.entity';
 import { AddUserInput } from './dto/add-user.input';
 import { DeleteTeamInput } from './dto/delete-team.input';
-import { KickUserInput } from './dto/kick-user.input';
+import { KickUserAllTeamsInput, KickUserInput } from './dto/kick-user.input';
 import { UpdateTeamInput, ChangeCreatorInput } from './dto/update-team.input';
 
 @Injectable()
@@ -63,7 +63,6 @@ export class TeamsService {
     const exist = await this.teamsRepository.findOne({
       where: {
         name: createTeamInput.name,
-        idCreator: createTeamInput.idUser
       }
     });
     if (exist) {
@@ -118,6 +117,30 @@ export class TeamsService {
         await this.teamsRepository.delete(idTeam);
         return true;
       }
+    }
+  }
+
+  async kickUserAllTeams(kickUserAllTeamsInput: KickUserAllTeamsInput): Promise<boolean> {
+    const idUser = kickUserAllTeamsInput.idUser;
+    const team = await this.teamsRepository.findOne({
+      where: {
+        idCreator: idUser
+      }
+    });
+    if (team) {
+      throw new Error('El usuario es creador de equipos y no puede ser eliminado');
+    } else {
+      const teams = await this.teamsRepository.createQueryBuilder('team')
+        .where(`:idUser = ANY(team."idUsers")`, { idUser })
+        .getMany();
+
+      if (teams.length > 0) {
+        teams.forEach(async team => {
+          team.idUsers = team.idUsers.filter(id => id !== idUser);
+          await this.teamsRepository.save(team);
+        });
+      }
+      return true;
     }
   }
 

@@ -7,6 +7,8 @@ import { DeleteTeamInput } from './dto/delete-team.input';
 import { AddUserInput } from './dto/add-user.input';
 import { KickUserAllTeamsInput, KickUserInput } from './dto/kick-user.input';
 import { ChangeCreatorInput, UpdateTeamInput } from './dto/update-team.input';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => Team)
 export class TeamsResolver {
@@ -132,10 +134,9 @@ export class TeamsResolver {
       const team = await this.teamsService.findTeamById(deleteTeamInput.idTeam);
 
       const projectMutation = `
-        mutation ($idTeam: Int!, $idUsers: [Int!]!) {
+        mutation ($idTeam: Int!) {
           removeTeamAllProject(removeTeamAllProjectInput:{
             idTeam: $idTeam,
-            idUsers: $idUsers
           }) {
             response
           }
@@ -172,36 +173,10 @@ export class TeamsResolver {
   async kickUserAllTeams(@Args('kickUserAllTeamsInput') kickUserAllTeamsInput: KickUserAllTeamsInput) {
     console.log('[*] kickUserAllTeams');
 
-    interface RoleResponse {
-      deleteRoleUserByUser: {
-        response: boolean;
-      };
-    }
-
     try {
-      const roleMutation = `
-        mutation ($idUser: Int!) {
-          deleteRoleUserByUser(deleteRoleUserByUserInput:{
-            idUser: $idUser
-          }) {
-            response
-          }
-        }
-      `;
-
-      const variables = {
-        idUser: kickUserAllTeamsInput.idUser
-      };
-
       const validate = await this.teamsService.kickUserAllTeams(kickUserAllTeamsInput);
       if (validate) {
-        const validateRole: RoleResponse = await request('http://localhost:3003/graphql', roleMutation, variables);
-
-        if (!validateRole.deleteRoleUserByUser.response) {
-          return { response: false };
-        } else {
-          return { response: true };
-        }
+        return { response: true };
       } else {
         return { response: false };
       }
@@ -219,33 +194,7 @@ export class TeamsResolver {
   async kickUser(@Args('kickUserInput') kickUserInput: KickUserInput) {
     console.log('[*] kickUser');
 
-    interface RoleResponse {
-      deleteRoleUserByUser: {
-        response: boolean;
-      };
-    }
-
     try {
-      const roleMutation = `
-        mutation ($idUser: Int!) {
-          deleteRoleUserByUser(deleteRoleUserByUserInput:{
-            idUser: $idUser
-          }) {
-            response
-          }
-        }
-      `;
-
-      const variables = {
-        idUser: kickUserInput.idUser
-      };
-
-      const validateRole: RoleResponse = await request('http://localhost:3002/graphql', roleMutation, variables);
-
-      if (!validateRole.deleteRoleUserByUser.response) {
-        return { response: false };
-      }
-
       const validate = await this.teamsService.kickUser(kickUserInput);
       if (validate) {
         return { response: true };

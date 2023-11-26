@@ -11,3 +11,10 @@ export class KickUserInput {
   @Field((type) => Int)
   idUser: number;
 }
+
+@InputType()
+export class KickUserAllTeamsInput {
+  @IsNotEmpty()
+  @Field((type) => Int)
+  idUser: number;
+}

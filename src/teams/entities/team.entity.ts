@@ -2,7 +2,7 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
-@Unique(["name", "idCreator"])
+@Unique(["name"])
 @ObjectType()
 export class Team {
   @PrimaryGeneratedColumn()
@@ -24,10 +24,6 @@ export class Team {
   @Column()
   @Field((type) => Int)
   idCreator: number;
-
-  @Column('integer', { array: true })
-  @Field((type) => [Int])
-  idRoles: number[];
 }
 
 @ObjectType()

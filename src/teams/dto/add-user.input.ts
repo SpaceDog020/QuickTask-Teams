@@ -8,6 +8,6 @@ export class AddUserInput {
   idTeam: number;
 
   @IsNotEmpty()
-  @Field((type) => Int)
-  idUser: number;
+  @Field()
+  email: string;
 }

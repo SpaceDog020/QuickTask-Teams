@@ -6,4 +6,8 @@ export class DeleteTeamInput {
     @IsNotEmpty()
     @Field((type) => Int)
     idTeam: number;
+
+    @IsNotEmpty()
+    @Field((type) => Int)
+    idCreator: number;
 }

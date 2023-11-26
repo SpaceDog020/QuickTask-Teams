@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApolloFederationDriver, ApolloFederationDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
 import { TeamsModule } from './teams/teams.module';
-import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -30,8 +29,7 @@ import { RolesModule } from './roles/roles.module';
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true
     }),
-    TeamsModule,
-    RolesModule,
+    TeamsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,8 +7,6 @@ import { DeleteTeamInput } from './dto/delete-team.input';
 import { AddUserInput } from './dto/add-user.input';
 import { KickUserAllTeamsInput, KickUserInput } from './dto/kick-user.input';
 import { ChangeCreatorInput, UpdateTeamInput } from './dto/update-team.input';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => Team)
 export class TeamsResolver {
@@ -173,7 +171,29 @@ export class TeamsResolver {
   async kickUserAllTeams(@Args('kickUserAllTeamsInput') kickUserAllTeamsInput: KickUserAllTeamsInput) {
     console.log('[*] kickUserAllTeams');
 
+    interface TaskResponse {
+      unlinkAllTaskUser: {
+        response: boolean;
+      };
+    }
+
     try {
+      const taskMutation = `
+        mutation ($idUser: Int!) {
+          unlinkAllTaskUser(unlinkAllTaskUserInput:{
+            idUser: $idUser,
+          }) {
+            response
+          }
+        }
+      `;
+
+      const variables = {
+        idUser: kickUserAllTeamsInput.idUser
+      };
+
+      const validateTask: TaskResponse = await request('http://localhost:3003/graphql', taskMutation, variables);
+
       const validate = await this.teamsService.kickUserAllTeams(kickUserAllTeamsInput);
       if (validate) {
         return { response: true };
@@ -194,7 +214,31 @@ export class TeamsResolver {
   async kickUser(@Args('kickUserInput') kickUserInput: KickUserInput) {
     console.log('[*] kickUser');
 
+    interface TaskResponse {
+      unlinkAllTaskUserTeam: {
+        response: boolean;
+      };
+    }
+
     try {
+      const taskMutation = `
+        mutation ($idUser: Int!, $idTeam: Int!) {
+          unlinkAllTaskUserTeam(unlinkAllTaskUserTeamInput:{
+            idUser: $idUser,
+            idTeam: $idTeam
+          }) {
+            response
+          }
+        }
+      `;
+
+      const variables = {
+        idUser: kickUserInput.idUser,
+        idTeam: kickUserInput.idTeam
+      };
+
+      const validateTask: TaskResponse = await request('http://localhost:3003/graphql', taskMutation, variables);
+
       const validate = await this.teamsService.kickUser(kickUserInput);
       if (validate) {
         return { response: true };

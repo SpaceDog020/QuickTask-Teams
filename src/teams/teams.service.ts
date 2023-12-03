@@ -232,11 +232,33 @@ export class TeamsService {
         id: idTeam
       }
     });
-
+  
     if (!team) {
       throw new Error('El equipo no existe');
     }
-
+  
     return team.idUsers;
+  }
+
+  async findUsersByTeamIds(ids: number[]): Promise<number[]> {
+    const teams = await this.teamsRepository.find({
+      where: {
+        id: In(ids)
+      }
+    });
+  
+    if (!teams || teams.length === 0) {
+      throw new Error('El equipo no existe');
+    }
+  
+    let userIds = new Set<number>();
+  
+    teams.forEach(team => {
+      team.idUsers.forEach(userId => {
+        userIds.add(userId);
+      });
+    });
+  
+    return Array.from(userIds);
   }
 }

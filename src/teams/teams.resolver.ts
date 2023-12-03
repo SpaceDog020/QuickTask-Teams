@@ -291,4 +291,11 @@ export class TeamsResolver {
       throw new Error(errorMessage);
     }
   }
+
+  @Query((returns) => TeamUsersResponse)
+  async teamsUsersIds(@Args('ids', { type: () => [Int] }) ids: number[]) {
+    console.log('[*] usersByTeamIds');
+    const userIds = await this.teamsService.findUsersByTeamIds(ids);
+    return { userIds };
+  }
 }

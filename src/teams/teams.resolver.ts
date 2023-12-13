@@ -128,8 +128,7 @@ export class TeamsResolver {
       };
     }
 
-    try {
-      const team = await this.teamsService.findTeamById(deleteTeamInput.idTeam);
+    const team = await this.teamsService.findTeamById(deleteTeamInput.idTeam);
 
       const projectMutation = `
         mutation ($idTeam: Int!) {
@@ -146,13 +145,9 @@ export class TeamsResolver {
         idUsers: team.idUsers
       };
 
-      const validateProject: ProjectResponse = await request('http://localhost:3003/graphql', projectMutation, variables);
-
-      if (!validateProject.removeTeamAllProject.response) {
-        return { response: false };
-      }
-
+    try {
       const validate = await this.teamsService.deleteTeam(deleteTeamInput);
+      const validateProject: ProjectResponse = await request('http://localhost:3003/graphql', projectMutation, variables);
       if (validate) {
         return { response: true };
       } else {
@@ -177,8 +172,7 @@ export class TeamsResolver {
       };
     }
 
-    try {
-      const taskMutation = `
+    const taskMutation = `
         mutation ($idUser: Int!) {
           unlinkAllTaskUser(unlinkAllTaskUserInput:{
             idUser: $idUser,
@@ -192,9 +186,9 @@ export class TeamsResolver {
         idUser: kickUserAllTeamsInput.idUser
       };
 
-      const validateTask: TaskResponse = await request('http://localhost:3003/graphql', taskMutation, variables);
-
+    try {
       const validate = await this.teamsService.kickUserAllTeams(kickUserAllTeamsInput);
+      const validateTask: TaskResponse = await request('http://localhost:3003/graphql', taskMutation, variables);
       if (validate) {
         return { response: true };
       } else {
@@ -220,12 +214,10 @@ export class TeamsResolver {
       };
     }
 
-    try {
-      const taskMutation = `
-        mutation ($idUser: Int!, $idTeam: Int!) {
-          unlinkAllTaskUserTeam(unlinkAllTaskUserTeamInput:{
+    const taskMutation = `
+        mutation ($idUser: Int!) {
+          unlinkAllTaskUserTeam(unlinkAllTaskUserInput:{
             idUser: $idUser,
-            idTeam: $idTeam
           }) {
             response
           }
@@ -234,12 +226,11 @@ export class TeamsResolver {
 
       const variables = {
         idUser: kickUserInput.idUser,
-        idTeam: kickUserInput.idTeam
       };
 
-      const validateTask: TaskResponse = await request('http://localhost:3003/graphql', taskMutation, variables);
-
+    try {
       const validate = await this.teamsService.kickUser(kickUserInput);
+      const validateTask: TaskResponse = await request('http://localhost:3003/graphql', taskMutation, variables);
       if (validate) {
         return { response: true };
       } else {

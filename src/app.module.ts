@@ -29,7 +29,7 @@ import { TeamsModule } from './teams/teams.module';
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true
     }),
-    TeamsModule,
+    TeamsModule
   ],
   controllers: [AppController],
   providers: [AppService],

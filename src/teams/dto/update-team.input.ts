@@ -14,3 +14,15 @@ export class UpdateTeamInput{
     @Field({ nullable: true })
     description: string;
 }
+
+@InputType()
+export class ChangeCreatorInput{
+    @Field((type) => Int)
+    idTeam: number;
+    
+    @Field((type) => Int)
+    idUser: number;
+
+    @Field((type) => Int)
+    idNewCreator: number;
+}

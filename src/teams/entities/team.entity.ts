@@ -1,8 +1,8 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
-@Index(["name", "idCreator"], { unique: true })
+@Unique(["name"])
 @ObjectType()
 export class Team {
   @PrimaryGeneratedColumn()
@@ -30,4 +30,10 @@ export class Team {
 export class ResponseTeams {
   @Field()
   response: boolean;
+}
+
+@ObjectType()
+export class TeamUsersResponse {
+  @Field(() => [Int])
+  userIds: number[];
 }

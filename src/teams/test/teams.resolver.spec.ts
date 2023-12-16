@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TeamsResolver } from './teams.resolver';
-import { TeamsService } from './teams.service';
+import { TeamsResolver } from '../teams.resolver';
+import { TeamsService } from '../teams.service';
 
 describe('TeamsResolver', () => {
   let resolver: TeamsResolver;
